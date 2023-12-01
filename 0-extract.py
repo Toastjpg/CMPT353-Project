@@ -81,13 +81,12 @@ def main():
     
     # These subreddits are around 50-100k members each -> totalling 500k members
     # subs = ['Genealogy', 'xkcd', 'optometry', 'Cameras', 'scala']  
-    
-    # Choosing three relatively medium sized subreddits -> totalling 700k
-    subs = ['cat', 'csMajors', 'vancouver']
+
+    subs = ['AskReddit', 'Jokes', 'Showerthoughts']
     subs = list(map(functions.lit, subs))
     
     reddit_submissions.where(reddit_submissions['subreddit'].isin(subs)) \
-        .where(reddit_submissions['year'] == 2016) \
+        .where(reddit_submissions['year'] == 2020) \
         .write.json(output + '/submissions', mode='overwrite', compression='gzip')
     
     # reddit_comments.where(reddit_comments['subreddit'].isin(subs)) \
