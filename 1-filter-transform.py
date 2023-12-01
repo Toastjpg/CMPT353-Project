@@ -49,6 +49,7 @@ def main(input, output):
     # Keep the columns that seem to be the most interesting/consistently present in data
     reddit_submissions = reddit_submissions.select(
         'created_utc',
+        'retrieved_on',
         'year',
         'month',
         'subreddit',
@@ -67,21 +68,6 @@ def main(input, output):
         functions.dayofmonth('timestamp').alias('day'),
         functions.hour('timestamp').alias('hour'),
         functions.dayofweek('timestamp').alias('dayofweek')
-    )
-
-    reddit_submissions = reddit_submissions.select(
-        'timestamp',
-        'day',
-        'month',
-        'year',
-        'dayofweek',
-        'subreddit',
-        'author',
-        'over_18',
-        'gilded',
-        'num_comments',
-        'score',
-        'title'
     )
 
     reddit_submissions.write.json(output, mode='overwrite', compression='gzip')    
