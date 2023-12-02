@@ -59,7 +59,7 @@ def main(input, output):
 
     posts = posts.select(
         'created_on',
-        'retrieved_on'
+        'retrieved_on',
         'created_timestamp',
         'retrieved_timestamp',
         'age',
