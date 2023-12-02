@@ -76,7 +76,7 @@ def main(input, output):
 if __name__ == '__main__':
     output = 'submissions-filtered/'
     input = 'submissions-transformed/'
-    spark = SparkSession.builder.appName('transform reddit data').getOrCreate()
+    spark = SparkSession.builder.appName('reddit data model').getOrCreate()
     assert spark.version >= '3.4' # make sure we have Spark 3.4+
     spark.sparkContext.setLogLevel('WARN')
 
