@@ -77,21 +77,13 @@ submissions_schema = types.StructType([
 
 def main():
     reddit_submissions = spark.read.json(reddit_submissions_path, schema=submissions_schema)
-    # reddit_comments = spark.read.json(reddit_comments_path, schema=comments_schema)
-    
-    # These subreddits are around 50-100k members each -> totalling 500k members
-    # subs = ['Genealogy', 'xkcd', 'optometry', 'Cameras', 'scala']  
 
     subs = ['AskReddit', 'Jokes', 'Showerthoughts']
     subs = list(map(functions.lit, subs))
     
     reddit_submissions.where(reddit_submissions['subreddit'].isin(subs)) \
-        .where(reddit_submissions['year'] == 2020) \
+        .where(reddit_submissions['year'] == 2019) \
         .write.json(output + '/submissions', mode='overwrite', compression='gzip')
-    
-    # reddit_comments.where(reddit_comments['subreddit'].isin(subs)) \
-    #     .where(reddit_comments['year'] == 2016) \
-    #     .write.json(output + '/comments', mode='overwrite', compression='gzip')
     
 
 main()

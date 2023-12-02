@@ -69,7 +69,8 @@ def main(input, output):
         'gilded',
         'num_comments',
         'score',
-        'title'
+        'title',
+        'selftext',
     )
 
     posts.write.json(output, mode='overwrite', compression='gzip')    
