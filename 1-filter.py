@@ -44,12 +44,23 @@ submissions_schema = types.StructType([
 ])
 
 def main(input, output):
-    reddit_submissions = spark.read.json(input, schema=submissions_schema)
+    posts = spark.read.json(input, schema=submissions_schema)
 
-    # Keep the columns that seem to be the most interesting/consistently present in data
-    reddit_submissions = reddit_submissions.select(
-        'created_utc',
-        'retrieved_on',
+    # Parse unix epoch time to timestamps
+    # Add "age" of the post in days relative to retrieval time
+    posts = posts.select(
+        "*",
+        functions.from_unixtime('created_utc').alias('created_timestamp'),
+        functions.from_unixtime('retrieved_on').alias('retrieved_timestamp'),
+        functions.datediff('retrieved_timestamp', 'created_timestamp').alias('age')
+    )
+
+    # Keeping only relevant columns
+    # Most columns in provided schema either irrelevant or nonexistent within dataset
+    posts = posts.select(
+        'created_timestamp',
+        'retrieved_timestamp',
+        'age',
         'year',
         'month',
         'subreddit',
@@ -61,23 +72,13 @@ def main(input, output):
         'title'
     )
 
-    # Parse created_utc from unix epoch and add more date columns
-    reddit_submissions = reddit_submissions.select(
-        "*",
-        functions.from_unixtime('created_utc').alias('timestamp'),
-        functions.dayofmonth('timestamp').alias('day'),
-        functions.hour('timestamp').alias('hour'),
-        functions.dayofweek('timestamp').alias('dayofweek')
-    )
-
-    reddit_submissions.write.json(output, mode='overwrite', compression='gzip')    
+    posts.write.json(output, mode='overwrite', compression='gzip')    
 
 if __name__ == '__main__':
     inputs = sys.argv[1]
     output = sys.argv[2]
-    spark = SparkSession.builder.appName('example code').getOrCreate()
+    spark = SparkSession.builder.appName('filter reddit-subset').getOrCreate()
     assert spark.version >= '3.4' # make sure we have Spark 3.4+
     spark.sparkContext.setLogLevel('WARN')
-    #sc = spark.sparkContext
 
     main(inputs, output)
