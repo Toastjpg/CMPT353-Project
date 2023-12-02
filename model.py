@@ -8,25 +8,25 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import col
 
 transformed_schema = types.StructType([
-    types.StructField('created_on', types.LongType()),
-    types.StructField('age', types.LongType()),
+    types.StructField('created_on', types.IntegerType()),
+    types.StructField('age', types.IntegerType()),
     types.StructField('year', types.IntegerType()),
     types.StructField('month', types.IntegerType()),
-    types.StructField('day', types.LongType()),
-    types.StructField('hour', types.LongType()),
-    types.StructField('day_of_week', types.LongType()),
+    types.StructField('day', types.IntegerType()),
+    types.StructField('hour', types.IntegerType()),
+    types.StructField('day_of_week', types.IntegerType()),
     types.StructField('subreddit', types.StringType()),
     types.StructField('author', types.StringType()),
-    types.StructField('over_18', types.LongType()),
-    types.StructField('gilded', types.LongType()),
-    types.StructField('post_count', types.LongType()),
-    types.StructField('archived', types.LongType()),
-    types.StructField('quarantine', types.LongType()),
-    types.StructField('stickied', types.LongType()),
-    types.StructField('num_comments', types.LongType()),
-    types.StructField('score', types.LongType()),
+    types.StructField('over_18', types.IntegerType()),
+    types.StructField('gilded', types.IntegerType()),
+    types.StructField('post_count', types.IntegerType()),
+    types.StructField('archived', types.IntegerType()),
+    types.StructField('quarantine', types.IntegerType()),
+    types.StructField('stickied', types.IntegerType()),
+    types.StructField('num_comments', types.IntegerType()),
+    types.StructField('score', types.IntegerType()),
     types.StructField('title', types.StringType()),
-    types.StructField('title_length', types.LongType()),
+    types.StructField('title_length', types.IntegerType()),
     types.StructField('selftext', types.StringType()),
 ])
 
@@ -65,8 +65,30 @@ def train_model(df):
 
 def main(input, output):
     posts = spark.read.json(input, transformed_schema)
+
+    posts = posts.select(
+        'created_on',
+        'age',
+        'year',
+        'month',
+        'day',
+        'hour',
+        'day_of_week',
+        'post_count',
+        'over_18',
+        'post_count',
+        'gilded',
+        'archived',
+        'quarantine',
+        'stickied',
+        'num_comments',
+        'score',
+        'title_length'
+    )
+
     print(posts.count())
     print(posts.count()/10)
+    posts.show()
 
     train_model(posts.sample(fraction=0.1))
 
