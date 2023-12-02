@@ -81,8 +81,8 @@ def main(input, output):
     posts.write.json(output, mode='overwrite', compression='gzip')    
 
 if __name__ == '__main__':
-    inputs = '/reddit-subset/submissions/'
-    output = '/submissions-filtered/'
+    inputs = 'reddit-subset/submissions/'
+    output = 'submissions-filtered/'
     spark = SparkSession.builder.appName('filter reddit-subset').getOrCreate()
     assert spark.version >= '3.4' # make sure we have Spark 3.4+
     spark.sparkContext.setLogLevel('WARN')

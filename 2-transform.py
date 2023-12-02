@@ -69,8 +69,8 @@ def main(input, output):
     posts.write.json(output, mode='overwrite', compression='gzip')  
 
 if __name__ == '__main__':
-    input = '/submissions-filtered/'
-    output = '/submissions-transformed/'
+    input = 'submissions-filtered/'
+    output = 'submissions-transformed/'
     spark = SparkSession.builder.appName('transform reddit data').getOrCreate()
     assert spark.version >= '3.4' # make sure we have Spark 3.4+
     spark.sparkContext.setLogLevel('WARN')
