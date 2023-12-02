@@ -26,10 +26,10 @@ refined_schema = types.StructType([
 def main(input, output):
     posts = spark.read.json(input, schema=refined_schema)
     
-    # # Adding title length
+    # Adding title length
     posts = posts.withColumn('title_length', F.length('title'))
 
-    # # Add time related columns
+    # Add time related columns
     posts = posts.withColumn('day', F.dayofmonth('created_timestamp'))
     posts = posts.withColumn('hour', F.hour('created_timestamp'))
     posts = posts.withColumn('day_of_week', F.dayofweek('created_timestamp'))
@@ -39,12 +39,15 @@ def main(input, output):
     with_post_counts = posts.groupBy('subreddit', 'author').agg(F.count('*').alias('post_count'))
     posts = posts.join(with_post_counts, ['subreddit', 'author']) 
 
+    # Cast boolean values to binary 0 for false and 1 for true
+    posts = posts.withColumn('over_18', posts['over_18'].cast(types.IntegerType()))
+    posts = posts.withColumn('archived', posts['archived'].cast(types.IntegerType()))
+    posts = posts.withColumn('quarantine', posts['quarantine'].cast(types.IntegerType()))
+    posts = posts.withColumn('stickied', posts['stickied'].cast(types.IntegerType()))
+
     # Reorder columns
     posts = posts.select(
         'created_on',
-        'retrieved_on',
-        'created_timestamp',
-        'retrieved_timestamp',
         'age',
         'year',
         'month',
