@@ -47,17 +47,19 @@ def main(input, output):
     posts = spark.read.json(input, schema=submissions_schema)
 
     # Parse unix epoch time to timestamps
-    # Add "age" of the post in days relative to retrieval time
     posts = posts.select(
         "*",
         functions.from_unixtime('created_utc').alias('created_timestamp'),
         functions.from_unixtime('retrieved_on').alias('retrieved_timestamp'),
-        functions.datediff('retrieved_timestamp', 'created_timestamp').alias('age')
+        functions.datediff('retrieved_timestamp', 'created_timestamp').alias('age'),
     )
 
-    # Keeping only relevant columns
-    # Most columns in provided schema either irrelevant or nonexistent within dataset
+    # Cast from string to long
+    posts = posts.withColumn("created_on", posts['created_utc'].cast(types.LongType()))
+
     posts = posts.select(
+        'created_on',
+        'retrieved_on'
         'created_timestamp',
         'retrieved_timestamp',
         'age',
@@ -67,6 +69,9 @@ def main(input, output):
         'author',
         'over_18',
         'gilded',
+        'archived',
+        'quarantine',
+        'stickied',
         'num_comments',
         'score',
         'title',
