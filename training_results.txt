@@ -1,0 +1,25 @@
+Using all features:
+Root Mean Squared Error (RMSE) on testing data: 866.1867504104342
+Model Coefficients:
+created_on: 24.38410532823051
+age: 3.126121825221562
+year: 0.0
+month: -28.102154391613993
+day: -1.6416928752167999
+hour: -5.370016449223865
+day_of_week: 0.1358582768647394
+post_count: -4.432468156682428
+over_18: -0.10710690681255457
+post_count: -4.4324681566828685
+gilded: 322.8974073585998
+archived: -0.13696770244788067
+quarantine: 0.0
+stickied: 0.5658902372400008
+num_comments: 533.6993145054516
+title_length: 16.255246560851308
+
+Using top 2 features (nu_comments and gilded):
+Root Mean Squared Error (RMSE) on testing data: 868.6679019709477
+Model Coefficients:
+num_comments: 529.7015955839807
+gilded: 327.1942833604336
