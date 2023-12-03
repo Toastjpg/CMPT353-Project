@@ -90,7 +90,13 @@ def main(input, output):
     print(posts.count()/10)
     posts.show()
 
-    train_model(posts.sample(fraction=0.1))
+    # Check for NaN values
+    posts.select([F.count(F.when(F.isnan(c), c)).alias(c) for c in posts.columns]).show()
+
+    # Check for infinite values
+    posts.select([F.count(F.when(col(c).isin([float('inf'), float('-inf')]), c)).alias(c) for c in posts.columns]).show()
+
+    # train_model(posts.sample(fraction=0.1))
 
 
     # posts.write.json(output, mode='overwrite', compression='gzip')  
