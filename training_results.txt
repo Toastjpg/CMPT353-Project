@@ -1,0 +1,34 @@
+full feature set:
+Root Mean Squared Error (RMSE) on testing data: 833.2670734325815
+Mean Absolute Error (MAE) on testing data: 49.59181580797552
+Model Coefficients:
+created_on: 3.0142476060748145
+age: 2.57988541091841
+year: 0.0
+month: -6.501068921975195
+day: -0.4136002618598551
+hour: -5.414108120719513
+day_of_week: -0.022638090441226975
+post_count: -4.450122740681806
+over_18: 0.009696903402570341
+post_count: -4.450122740682487
+gilded: 323.9103481969824
+archived: 0.009753353430009003
+quarantine: 0.0
+stickied: 0.565341537794493
+num_comments: 537.4878601620195
+title_length: 16.189139105787916
+
+top 2 features:
+Root Mean Squared Error (RMSE) on testing data: 820.3183035008971
+Mean Absolute Error (MAE) on testing data: 44.08139515437382
+Model Coefficients:
+num_comments: 530.675209640117
+gilded: 317.54499394424016
+
+only using mean_score:
+Root Mean Squared Error (RMSE) on testing data: 820.3183035008971
+Mean Absolute Error (MAE) on testing data: 44.08139515437382
+Model Coefficients:
+num_comments: 530.675209640117
+gilded: 317.54499394424016

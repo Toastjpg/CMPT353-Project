@@ -67,9 +67,9 @@ def train_model(training_data, testing_data, feature_columns):
     results = predictions.select("score", "prediction").toPandas()
     results.to_csv("predicted_vs_actual.csv", index=False)
 
-def compare_against_mean(testing_data, mean):
-    abs_diff = testing_data.withColumn('abs_diff', abs(col('score') - mean))
-    avg_diff = abs_diff.select(mean('abs_diff')).collect()[0][0]
+def compare_against_mean(testing_data, score_mean):
+    abs_diff = testing_data.withColumn('abs_diff', F.abs(testing_data['score'] - score_mean))
+    avg_diff = abs_diff.agg(F.mean(col('abs_diff'))).collect()[0][0]
     print(f'Mean Absolute Error (MAE) when comparing against average score: {avg_diff}')
 
 def main(input, output):
