@@ -51,13 +51,26 @@ def train_model(training_data, testing_data, feature_columns):
     # Evaluate the model
     evaluator = RegressionEvaluator(labelCol="score", predictionCol="prediction", metricName="rmse")
     rmse = evaluator.evaluate(predictions)
+    evaluator = RegressionEvaluator(labelCol="score", predictionCol="prediction", metricName="mae")
+    mae = evaluator.evaluate(predictions)
     print(f"Root Mean Squared Error (RMSE) on testing data: {rmse}")
+    print(f"Mean Absolute Error (MAE) on testing data: {mae}")
+
 
     # Display the model coefficients
     coefficients = model.stages[-1].coefficients
     print("Model Coefficients:")
     for col, coef in zip(feature_columns, coefficients):
         print(f"{col}: {coef}")
+
+    # Output the predicts and the actual scores
+    results = predictions.select("score", "prediction").toPandas()
+    results.to_csv("predicted_vs_actual.csv", index=False)
+
+def compare_against_mean(testing_data, mean):
+    abs_diff = testing_data.withColumn('abs_diff', abs(col('score') - mean))
+    avg_diff = abs_diff.select(mean('abs_diff')).collect()[0][0]
+    print(f'Mean Absolute Error (MAE) when comparing against average score: {avg_diff}')
 
 def main(input, output):
 
@@ -96,6 +109,8 @@ def main(input, output):
     training_data_top2 = training_data.select('num_comments', 'gilded', 'score')
     testing_data_top2 = testing_data.select('num_comments', 'gilded', 'score')
     train_model(training_data_top2, testing_data_top2, ['num_comments', 'gilded'])
+
+    compare_against_mean(testing_data, 3.784490e+01)
 
     # posts.write.json(output, mode='overwrite', compression='gzip')  
 
