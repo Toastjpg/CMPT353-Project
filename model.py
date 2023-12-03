@@ -1,7 +1,7 @@
 import sys
 from pyspark.sql import SparkSession, functions, types, Row
 from pyspark.sql import functions as F
-from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.feature import VectorAssembler, StandardScaler
 from pyspark.ml.regression import LinearRegression
 from pyspark.ml import Pipeline
 from pyspark.ml.evaluation import RegressionEvaluator
@@ -30,26 +30,30 @@ transformed_schema = types.StructType([
     types.StructField('selftext', types.StringType()),
 ])
 
-def train_model(df):
+def train_model(training_data, testing_data, feature_columns):
 
-    feature_columns = df.columns
     # vectorize features
-    assembler = VectorAssembler(inputCols=feature_columns, outputCol="features")
+    assembler = VectorAssembler(inputCols=feature_columns, outputCol="raw_features")
+
+    # Scale the vector
+    scaler = StandardScaler(inputCol="raw_features", outputCol="scaled_features", withMean=True, withStd=True)
 
     # Create a Linear Regression model
-    lr = LinearRegression(featuresCol="features", labelCol="score")
+    lr = LinearRegression(featuresCol="scaled_features", labelCol="score")
 
     # Create a pipeline to assemble features and fit the model
-    pipeline = Pipeline(stages=[assembler, lr])
-    model = pipeline.fit(df)
+    pipeline = Pipeline(stages=[assembler, scaler, lr])
+
+
+    model = pipeline.fit(training_data)
 
     # Make predictions on the dataset
-    predictions = model.transform(df)
+    predictions = model.transform(testing_data)
 
     # Evaluate the model
     evaluator = RegressionEvaluator(labelCol="score", predictionCol="prediction", metricName="rmse")
     rmse = evaluator.evaluate(predictions)
-    print(f"Root Mean Squared Error (RMSE): {rmse}")
+    print(f"Root Mean Squared Error (RMSE) on testing data: {rmse}")
 
     # Display the model coefficients
     coefficients = model.stages[-1].coefficients
@@ -57,15 +61,12 @@ def train_model(df):
     for col, coef in zip(feature_columns, coefficients):
         print(f"{col}: {coef}")
 
-    # D isplay feature importances
-    importances = model.stages[-1].featureImportances.toArray()
-    print("Feature Importances:")
-    for col, importance in zip(feature_columns, importances):
-        print(f"{col}: {importance}")
-
 def main(input, output):
-    posts = spark.read.json(input, transformed_schema).na.drop('any')
 
+    # Remove any rows with NULL values (it can affect the VectorAssembler)
+    posts = spark.read.json(input, transformed_schema).dropna()
+
+    # Further refine dataset to usable values for the Linear Regression model
     posts = posts.select(
         'created_on',
         'age',
@@ -86,18 +87,17 @@ def main(input, output):
         'title_length'
     )
 
-    print(posts.count())
-    print(posts.count()/10)
-    posts.show()
+    # Split data and train model
+    (training_data, testing_data) = posts.randomSplit([0.8, 0.2])
 
-    # Check for NaN values
-    posts.select([F.count(F.when(F.isnan(c), c)).alias(c) for c in posts.columns]).show()
+    # Grab columns that are features and train the model (all features)
+    feature_columns = [col_name for col_name in posts.columns if col_name != "score"]
+    train_model(training_data, testing_data, feature_columns)
 
-    # Check for infinite values
-    posts.select([F.count(F.when(col(c).isin([float('inf'), float('-inf')]), c)).alias(c) for c in posts.columns]).show()
-
-    # train_model(posts.sample(fraction=0.1))
-
+    # test accuracy of only using num_comments and gilded
+    training_data_top2 = training_data.select('num_comments', 'gilded', 'score')
+    testing_data_top2 = testing_data.select('num_comments', 'gilded', 'score')
+    train_model(training_data_top2, testing_data_top2, ['num_comments', 'gilded'])
 
     # posts.write.json(output, mode='overwrite', compression='gzip')  
 
