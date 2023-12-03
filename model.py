@@ -43,8 +43,6 @@ def train_model(training_data, testing_data, feature_columns):
 
     # Create a pipeline to assemble features and fit the model
     pipeline = Pipeline(stages=[assembler, scaler, lr])
-
-
     model = pipeline.fit(training_data)
 
     # Make predictions on the dataset
