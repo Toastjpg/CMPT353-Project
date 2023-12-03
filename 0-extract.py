@@ -78,9 +78,11 @@ submissions_schema = types.StructType([
 def main():
     reddit_submissions = spark.read.json(reddit_submissions_path, schema=submissions_schema)
 
+    # We're only using the following subreddits (they don't contain images, hyperlinks, or other features that may add complexity)
     subs = ['AskReddit', 'Jokes', 'Showerthoughts']
     subs = list(map(functions.lit, subs))
     
+    # We're also only using the year 2019 because it has the most amount of complete data
     reddit_submissions.where(reddit_submissions['subreddit'].isin(subs)) \
         .where(reddit_submissions['year'] == 2019) \
         .write.json(output + '/submissions', mode='overwrite', compression='gzip')

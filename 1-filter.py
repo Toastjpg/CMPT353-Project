@@ -57,6 +57,7 @@ def main(input, output):
     # Cast from string to long
     posts = posts.withColumn("created_on", posts['created_utc'].cast(types.LongType()))
 
+    # Select only columns that we could potentially turn into usable features
     posts = posts.select(
         'created_on',
         'retrieved_on',

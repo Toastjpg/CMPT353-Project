@@ -105,11 +105,12 @@ def main(input, output):
     feature_columns = [col_name for col_name in posts.columns if col_name != "score"]
     train_model(training_data, testing_data, feature_columns)
 
-    # test accuracy of only using num_comments and gilded
+    # Test accuracy of only using num_comments and gilded
     training_data_top2 = training_data.select('num_comments', 'gilded', 'score')
     testing_data_top2 = testing_data.select('num_comments', 'gilded', 'score')
     train_model(training_data_top2, testing_data_top2, ['num_comments', 'gilded'])
 
+    # Test accuracy by only predicting the score usigng the mean_score
     compare_against_mean(testing_data, 3.784490e+01)
 
     # posts.write.json(output, mode='overwrite', compression='gzip')  

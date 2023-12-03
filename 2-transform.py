@@ -45,7 +45,7 @@ def main(input, output):
     posts = posts.withColumn('quarantine', posts['quarantine'].cast(types.IntegerType()))
     posts = posts.withColumn('stickied', posts['stickied'].cast(types.IntegerType()))
 
-    # Reorder columns
+    # Select only usable columns and transformed values
     posts = posts.select(
         'created_on',
         'age',
