@@ -64,7 +64,7 @@ def train_model(df):
         print(f"{col}: {importance}")
 
 def main(input, output):
-    posts = spark.read.json(input, transformed_schema)
+    posts = spark.read.json(input, transformed_schema).na.drop('any')
 
     posts = posts.select(
         'created_on',
