@@ -77,7 +77,7 @@ def main(input, output):
         'score',
         'title',
         'selftext',
-    )
+    ).dropna()
 
     posts.write.json(output, mode='overwrite', compression='gzip')    
 

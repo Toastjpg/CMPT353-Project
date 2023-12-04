@@ -67,7 +67,7 @@ def main(input, output):
         'title_length',
         'title',
         'selftext'
-    )
+    ).dropna()
 
     posts.write.json(output, mode='overwrite', compression='gzip')  
 
