@@ -74,7 +74,7 @@ def compare_against_mean(testing_data, score_mean):
 def main(input):
 
     # Remove any rows with NULL values (it can affect the VectorAssembler)
-    posts = spark.read.json(input, transformed_schema).dropna()
+    posts = spark.read.json(input, transformed_schema)
 
     # Further refine dataset to usable values for the Linear Regression model
     posts = posts.select(
@@ -94,7 +94,7 @@ def main(input):
         'num_comments',
         'score',
         'title_length'
-    )
+    ).dropna()
 
     # Split data and train model
     (training_data, testing_data) = posts.randomSplit([0.8, 0.2])
@@ -109,13 +109,18 @@ def main(input):
     train_model(training_data_top2, testing_data_top2, ['num_comments', 'gilded'], "predicted_vs_actual_top2.csv")
 
     # Test accuracy by only predicting the score usigng the mean_score
-    compare_against_mean(testing_data, 3.784490e+01)
+    compare_against_mean(testing_data, training_data.agg(F.mean('score')).collect()[0][0])
 
 if __name__ == '__main__':
-    output = 'submissions-filtered/'
-    input = 'submissions-transformed/'
+    input_entire_dataset = 'submissions-transformed/'
+    input_split_by_mean_dataset = 'submissions-transformed-mean-split/'
     spark = SparkSession.builder.appName('reddit data model').getOrCreate()
     assert spark.version >= '3.4' # make sure we have Spark 3.4+
     spark.sparkContext.setLogLevel('WARN')
 
-    main(input)
+    # Test model using entire dataset
+    main(input_entire_dataset)
+
+
+    # Only use values where: half the datset is above the mean, half the dataset is below the mean (undersample majority to be half)
+    # main(input_split_by_mean_dataset)
