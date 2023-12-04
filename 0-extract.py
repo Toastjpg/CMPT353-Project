@@ -87,5 +87,4 @@ def main():
         .where(reddit_submissions['year'] == 2019) \
         .write.json(output + '/submissions', mode='overwrite', compression='gzip')
     
-
 main()
